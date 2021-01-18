@@ -264,12 +264,11 @@ public class Sender
 
         if ((mail.isSSLOnConnect() || mail.isStartTLSEnabled()) && mail.isSSLCheckServerIdentity()) {
             properties.setProperty(EmailConstants.MAIL_SMTP_SSL_CHECKSERVERIDENTITY, "true");
-            
-        	}
+        }
 
-			if(configuration.useTLSSMTP()) {
-			properties.setProperty("mail.smtp.ssl.protocols","TLSv1.2");
-			}
+        if (configuration.useTLSSMTP()) {
+        	properties.setProperty("mail.smtp.ssl.protocols","TLSv1.2");
+        }
 
         if (configuration.getFromAddress() != null) {
             properties.setProperty(EmailConstants.MAIL_SMTP_FROM, configuration.getFromAddress());
