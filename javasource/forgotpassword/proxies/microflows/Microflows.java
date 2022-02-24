@@ -80,12 +80,6 @@ public class Microflows
 		Map<java.lang.String, Object> params = new HashMap<>();
 		Core.microflowCall("ForgotPassword.Nav_GuestHomePage").withParams(params).execute(context);
 	}
-	public static boolean sF_CheckAccount(IContext context, forgotpassword.proxies.ForgotPassword _forgotPassword)
-	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("ForgotPassword", _forgotPassword == null ? null : _forgotPassword.getMendixObject());
-		return (java.lang.Boolean) Core.microflowCall("ForgotPassword.SF_CheckAccount").withParams(params).execute(context);
-	}
 	public static boolean sF_CheckForDuplicateAccount(IContext context, forgotpassword.proxies.ForgotPassword _forgotPassword)
 	{
 		Map<java.lang.String, Object> params = new HashMap<>();
@@ -99,6 +93,19 @@ public class Microflows
 		params.put("IsSignUp", _isSignUp);
 		return (java.lang.Boolean) Core.microflowCall("ForgotPassword.SF_CreateAndSendEmail").withParams(params).execute(context);
 	}
+	public static forgotpassword.proxies.ForgotPassword sF_CreateForgotPasswordRequest(IContext context, java.lang.String _emailAddress)
+	{
+		Map<java.lang.String, Object> params = new HashMap<>();
+		params.put("EmailAddress", _emailAddress);
+		IMendixObject result = (IMendixObject)Core.microflowCall("ForgotPassword.SF_CreateForgotPasswordRequest").withParams(params).execute(context);
+		return result == null ? null : forgotpassword.proxies.ForgotPassword.initialize(context, result);
+	}
+	public static void sF_SendEmailRecoverPassword(IContext context, java.lang.String _emailAddress)
+	{
+		Map<java.lang.String, Object> params = new HashMap<>();
+		params.put("EmailAddress", _emailAddress);
+		Core.microflowCall("ForgotPassword.SF_SendEmailRecoverPassword").withParams(params).execute(context);
+	}
 	public static void step1_ShowForgotPasswordPage(IContext context)
 	{
 		Map<java.lang.String, Object> params = new HashMap<>();
@@ -109,10 +116,10 @@ public class Microflows
 		Map<java.lang.String, Object> params = new HashMap<>();
 		Core.microflowCall("ForgotPassword.Step1_ShowSignupPage").withParams(params).execute(context);
 	}
-	public static void step2_SendEmailRecoverPassword(IContext context, forgotpassword.proxies.ForgotPassword _forgotPassword)
+	public static void step2_SendEmailRecoverPassword(IContext context, forgotpassword.proxies.ForgotPasswordHelper _forgotPasswordHelper)
 	{
 		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("ForgotPassword", _forgotPassword == null ? null : _forgotPassword.getMendixObject());
+		params.put("ForgotPasswordHelper", _forgotPasswordHelper == null ? null : _forgotPasswordHelper.getMendixObject());
 		Core.microflowCall("ForgotPassword.Step2_SendEmailRecoverPassword").withParams(params).execute(context);
 	}
 	public static void step3_DL_SetNewPassword(IContext context, java.lang.String _gUID)
