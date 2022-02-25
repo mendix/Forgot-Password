@@ -51,6 +51,11 @@ public class Microflows
 		params.put("ForgotPassword", _forgotPassword == null ? null : _forgotPassword.getMendixObject());
 		Core.microflowCall("ForgotPassword.GenerateUIDAndURL").withParams(params).execute(context);
 	}
+	public static java.util.Date getValidUntilDateTime(IContext context)
+	{
+		Map<java.lang.String, Object> params = new HashMap<>();
+		return (java.util.Date) Core.microflowCall("ForgotPassword.GetValidUntilDateTime").withParams(params).execute(context);
+	}
 	public static void iVK_CreateDeeplink(IContext context, forgotpassword.proxies.Configuration _configuration)
 	{
 		Map<java.lang.String, Object> params = new HashMap<>();
