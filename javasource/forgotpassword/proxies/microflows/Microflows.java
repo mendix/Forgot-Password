@@ -85,10 +85,10 @@ public class Microflows
 		Map<java.lang.String, Object> params = new HashMap<>();
 		Core.microflowCall("ForgotPassword.Nav_GuestHomePage").withParams(params).execute(context);
 	}
-	public static boolean sF_CheckForDuplicateAccount(IContext context, forgotpassword.proxies.ForgotPassword _forgotPassword)
+	public static boolean sF_CheckForDuplicateAccount(IContext context, java.lang.String _email)
 	{
 		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("ForgotPassword", _forgotPassword == null ? null : _forgotPassword.getMendixObject());
+		params.put("Email", _email);
 		return (java.lang.Boolean) Core.microflowCall("ForgotPassword.SF_CheckForDuplicateAccount").withParams(params).execute(context);
 	}
 	public static boolean sF_CreateAndSendEmail(IContext context, forgotpassword.proxies.ForgotPassword _forgotPassword, boolean _isSignUp)
@@ -139,10 +139,10 @@ public class Microflows
 		params.put("AccountPasswordData", _accountPasswordData == null ? null : _accountPasswordData.getMendixObject());
 		Core.microflowCall("ForgotPassword.Step4_SubmitPassword").withParams(params).execute(context);
 	}
-	public static boolean userAccountValidation(IContext context, forgotpassword.proxies.ForgotPassword _forgotPassword)
+	public static boolean userAccountValidation(IContext context, java.lang.String _emailAddress)
 	{
 		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("ForgotPassword", _forgotPassword == null ? null : _forgotPassword.getMendixObject());
+		params.put("EmailAddress", _emailAddress);
 		return (java.lang.Boolean) Core.microflowCall("ForgotPassword.UserAccountValidation").withParams(params).execute(context);
 	}
 }

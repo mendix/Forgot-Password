@@ -20,8 +20,7 @@ public class ForgotPasswordHelper
 	 */
 	public enum MemberNames
 	{
-		EmailAddress("EmailAddress"),
-		ForgotPasswordHelper_ForgotPassword("ForgotPassword.ForgotPasswordHelper_ForgotPassword");
+		EmailAddress("EmailAddress");
 
 		private java.lang.String metaName;
 
@@ -142,49 +141,6 @@ public class ForgotPasswordHelper
 	public final void setEmailAddress(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String emailaddress)
 	{
 		getMendixObject().setValue(context, MemberNames.EmailAddress.toString(), emailaddress);
-	}
-
-	/**
-	 * @return value of ForgotPasswordHelper_ForgotPassword
-	 */
-	public final forgotpassword.proxies.ForgotPassword getForgotPasswordHelper_ForgotPassword() throws com.mendix.core.CoreException
-	{
-		return getForgotPasswordHelper_ForgotPassword(getContext());
-	}
-
-	/**
-	 * @param context
-	 * @return value of ForgotPasswordHelper_ForgotPassword
-	 */
-	public final forgotpassword.proxies.ForgotPassword getForgotPasswordHelper_ForgotPassword(com.mendix.systemwideinterfaces.core.IContext context) throws com.mendix.core.CoreException
-	{
-		forgotpassword.proxies.ForgotPassword result = null;
-		com.mendix.systemwideinterfaces.core.IMendixIdentifier identifier = getMendixObject().getValue(context, MemberNames.ForgotPasswordHelper_ForgotPassword.toString());
-		if (identifier != null)
-			result = forgotpassword.proxies.ForgotPassword.load(context, identifier);
-		return result;
-	}
-
-	/**
-	 * Set value of ForgotPasswordHelper_ForgotPassword
-	 * @param forgotpasswordhelper_forgotpassword
-	 */
-	public final void setForgotPasswordHelper_ForgotPassword(forgotpassword.proxies.ForgotPassword forgotpasswordhelper_forgotpassword)
-	{
-		setForgotPasswordHelper_ForgotPassword(getContext(), forgotpasswordhelper_forgotpassword);
-	}
-
-	/**
-	 * Set value of ForgotPasswordHelper_ForgotPassword
-	 * @param context
-	 * @param forgotpasswordhelper_forgotpassword
-	 */
-	public final void setForgotPasswordHelper_ForgotPassword(com.mendix.systemwideinterfaces.core.IContext context, forgotpassword.proxies.ForgotPassword forgotpasswordhelper_forgotpassword)
-	{
-		if (forgotpasswordhelper_forgotpassword == null)
-			getMendixObject().setValue(context, MemberNames.ForgotPasswordHelper_ForgotPassword.toString(), null);
-		else
-			getMendixObject().setValue(context, MemberNames.ForgotPasswordHelper_ForgotPassword.toString(), forgotpasswordhelper_forgotpassword.getMendixObject().getId());
 	}
 
 	/**
