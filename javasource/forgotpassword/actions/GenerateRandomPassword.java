@@ -9,9 +9,11 @@
 
 package forgotpassword.actions;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Date;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.webui.CustomJavaAction;
 
@@ -29,7 +31,7 @@ public class GenerateRandomPassword extends CustomJavaAction<java.lang.String>
 	public java.lang.String executeAction() throws Exception
 	{
 		// BEGIN USER CODE
-		return generatePswd(15, 20, 4, 4, 4);
+		return generateCommonLangPassword(20,30,6,6,6);
 		// END USER CODE
 	}
 
@@ -44,54 +46,112 @@ public class GenerateRandomPassword extends CustomJavaAction<java.lang.String>
 
 	// BEGIN EXTRA CODE
 	
-	private static final char[] ALPHA_CAPS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
-	private static final char[] ALPHA_LOWER = "abcdefghijklmnopqrstuvwxyz".toCharArray();
-	private static final char[] NUM = "0123456789".toCharArray();
-	private static final char[] SPL_CHARS = "!@#$%^&*_=+-/".toCharArray();
 
-	private static final SecureRandom secureRandom;
-	static {
-		try {
-			secureRandom = SecureRandom.getInstance("SHA1PRNG");
-		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalArgumentException("Invalid Random Method");
-		}
-	}
+	//The code below is an exact copy of the password generation of the Community Commons library (commit of Jan-7 2022)
+	//No module link to reduce unnecessary module dependencies.
+	
+	private static final Random RANDOM = new SecureRandom();
+	private static final String UPPERCASE_ALPHA = stringRange('A', 'Z');
+	private static final String LOWERCASE_ALPHA = stringRange('a', 'z');
+	private static final String DIGITS = stringRange('0', '9');
+	private static final String SPECIAL = stringRange('!', '/');
+	private static final String ALPHANUMERIC = UPPERCASE_ALPHA + LOWERCASE_ALPHA + DIGITS;
 
-	public static String generatePswd(int minLen, int maxLen, int noOfCAPSAlpha, int noOfDigits, int noOfSplChars) {
-		if (minLen > maxLen)
-			throw new IllegalArgumentException("Min. Length > Max. Length!");
-		if ((noOfCAPSAlpha + noOfDigits + noOfSplChars) > minLen)
-			throw new IllegalArgumentException(
-					"Min. Length should be atleast sum of (CAPS, DIGITS, SPL CHARS) Length!");
 
-		secureRandom.setSeed((new Date()).getTime());
-		int len = secureRandom.nextInt(maxLen - minLen + 1) + minLen;
+	// See https://www.baeldung.com/java-generate-secure-password
+	// Implementation inspired by https://github.com/eugenp/tutorials/tree/master/core-java-modules/core-java-string-apis (under MIT license)
+	private static String generateCommonLangPassword(int minLen, int maxLen, int noOfCapsAlpha, int noOfDigits, int noOfSplChars) {
+		String upperCaseLetters = randomStringFromCharArray(noOfCapsAlpha, UPPERCASE_ALPHA.toCharArray());
+		String numbers = randomStringFromCharArray(noOfDigits, DIGITS.toCharArray());
+		String specialChar = randomStringFromCharArray(noOfSplChars, SPECIAL.toCharArray());
 
-		StringBuilder newPassword = new StringBuilder();
-		newPassword.append( getRandomString(noOfCAPSAlpha, ALPHA_CAPS) );
-		newPassword.append( getRandomString(noOfDigits, NUM) );
-		newPassword.append( getRandomString(noOfSplChars, SPL_CHARS) );
-		newPassword.append( getRandomString((len - noOfCAPSAlpha - noOfDigits - noOfSplChars), ALPHA_LOWER) );
+		final int fixedNumber = noOfCapsAlpha + noOfDigits + noOfSplChars;
+		final int lowerBound = minLen - fixedNumber;
+		final int upperBound = maxLen - fixedNumber;
+		String totalChars = randomStringFromCharArray(lowerBound, upperBound, ALPHANUMERIC.toCharArray());
 
-		return newPassword.toString();
+		String combinedChars = upperCaseLetters
+			.concat(numbers)
+			.concat(specialChar)
+			.concat(totalChars);
+		List<Character> pwdChars = combinedChars.chars()
+			.mapToObj(c -> (char) c)
+			.collect(Collectors.toList());
+		Collections.shuffle(pwdChars);
+		String password = pwdChars.stream()
+			.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+			.toString();
+		return password;
 	}
 
 	/**
-	 * Generate Random String, Source copied from ESAPI library
-	 * 
-	 * @param length
-	 * @param characterSet
-	 * @return randomString
+	 * Generate a secure random string using the given array of characters, of which the resulting
+	 * string will be composed of.
+	 *
+	 * @param count        The length of the random string.
+	 * @param allowedChars The characters used for constructing the random string.
+	 * @return A random string.
+	 * @throws IllegalArgumentException if <code>count</code> is negative or <code>allowedChars</code> is null or empty.
 	 */
-	public static StringBuilder getRandomString(int length, char[] characterSet) {
-		StringBuilder randomString = new StringBuilder(length);
-		for (int loop = 0; loop < length; loop++) {
-			int index = secureRandom.nextInt(characterSet.length);
-			randomString.append(characterSet[index]);
+	private static String randomStringFromCharArray(int count, final char[] allowedChars) {
+		if (count == 0)
+			return "";
+		if (count < 0)
+			throw new IllegalArgumentException("The requested length for the random string was negative: " + count);
+		if (allowedChars == null)
+			throw new IllegalArgumentException("The char array 'allowedChars' cannot be null.");
+		if (allowedChars.length == 0)
+			throw new IllegalArgumentException("The char array 'allowedChars' cannot be empty.");
+
+		StringBuilder builder = new StringBuilder();
+
+		while (count-- > 0) {
+			int index = RANDOM.nextInt(allowedChars.length);
+			builder.append(allowedChars[index]);
 		}
-		
-		return randomString;
+
+		return builder.toString();
 	}
+
+	/**
+	 * Generate a random string with a random length between <code>minLengthBound</code> and <code>maxLengthBound</code> (inclusive),
+	 * using the given set of allowed characters.
+	 *
+	 * @param minLengthBound The lower bound for the random length of the string.
+	 * @param maxLengthBound The upper bound for the random length of the string.
+	 * @param allowedChars   An array of characters of which the resulting string will be made up of.
+	 * @return A random string with a length between <code>minLengthBound</code> and <code>maxLengthBound</code>.
+	 * @throws IllegalArgumentException if <code>minLengthBound</code> is larger than <code>maxLengthBound</code>.
+	 */
+	private static String randomStringFromCharArray(int minLengthBound, int maxLengthBound, final char[] allowedChars) {
+		if (minLengthBound == maxLengthBound)
+			return randomStringFromCharArray(minLengthBound, allowedChars);
+		if (minLengthBound > maxLengthBound)
+			throw new IllegalArgumentException("The minimum bound (" + minLengthBound + ") was larger than the maximum bound (" + maxLengthBound + ".");
+		final int randomLength = minLengthBound + RANDOM.nextInt(maxLengthBound - minLengthBound + 1); // add one to make the range inclusive.
+		return randomStringFromCharArray(randomLength, allowedChars);
+	}
+
+	/**
+	 * Produces a 'range' string starting from the <code>begin</code> character up to
+	 * the <code>end</code> character (inclusive range). For example, for the range (a-z),
+	 * this method will generate the lowercase alphabet.
+	 *
+	 * @param begin The starting point of the string.
+	 * @param end   The ending point of the string.
+	 * @return A string from <code>begin</code> to <code>end</code> (inclusive range).
+	 * @throws IllegalArgumentException if the <code>begin</code> character has a higher code point than the <code>end</code> character.
+	 */
+	private static String stringRange(char begin, char end) {
+		if (begin > end) {
+			throw new IllegalArgumentException("The 'begin' character cannot be larger than the 'end' character.");
+		}
+
+		StringBuilder builder = new StringBuilder();
+		while (begin <= end)
+			builder.append(begin++);
+		return builder.toString();
+	}
+	
 	// END EXTRA CODE
 }
